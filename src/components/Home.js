@@ -1,6 +1,7 @@
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
-import { getAll, update } from '../BooksAPI'
+import { getAll } from '../BooksAPI'
+import { updateBookStatus } from '../utils/helpers'
 import Book from './Book'
 
 export const SHELF = {
@@ -13,7 +14,7 @@ export default class Home extends Component {
 
     constructor(props) {
         super(props)
-        this.currentlyReading = this.currentlyReading.bind(this)
+        this.updateBookStatus = updateBookStatus.bind(this)
     }
 
     state = {
@@ -22,22 +23,9 @@ export default class Home extends Component {
 
     componentDidMount() {
         getAll().then((books) => {
+            console.log(books)
             this.setState({ books })
         })
-    }
-
-    currentlyReading(book, event) {
-        update(book, event.target.value)
-            .then(data => {
-                console.log(data)
-                const newStateBook = [...this.state.books]
-                Object.keys(data).forEach(e => {
-                    data[e].forEach(x => {
-                        newStateBook.find(b => b.id === x).shelf = e
-                    })
-                })
-                this.setState({ state: newStateBook })
-            })
     }
 
     render() {
@@ -57,7 +45,7 @@ export default class Home extends Component {
                                         {this.state.books.map(book => {
                                             if (book.shelf === SHELF.CURRENTLY_READING) {
                                                 return (
-                                                    <Book key={book.key} book={book} currentlyReading={this.currentlyReading} />
+                                                    <Book key={book.id} book={book} updateBookStatus={this.updateBookStatus} />
                                                 )
                                             }
                                             return null
@@ -73,7 +61,7 @@ export default class Home extends Component {
                                         {this.state.books.map(book => {
                                             if (book.shelf === SHELF.WANT_TO_READ) {
                                                 return (
-                                                    <Book book={book} currentlyReading={this.currentlyReading} />
+                                                    <Book key={book.id} book={book} updateBookStatus={this.updateBookStatus} />
                                                 )
                                             }
                                             return null
@@ -89,7 +77,7 @@ export default class Home extends Component {
                                         {this.state.books.map(book => {
                                             if (book.shelf === SHELF.READ) {
                                                 return (
-                                                    <Book book={book} currentlyReading={this.currentlyReading} />
+                                                    <Book key={book.id} book={book} updateBookStatus={this.updateBookStatus} />
                                                 )
                                             }
                                             return null

@@ -5,14 +5,14 @@ export default class MoveTo extends Component {
 
     static propTypes = {
         book: PropTypes.object,
-        currentlyReading: PropTypes.func.isRequired
+        updateBookStatus: PropTypes.func.isRequired
     }
     state = {
         selectedValue: this.props.book.shelf || 'move'
     }
 
     onShelfChange(event) {
-        this.props.currentlyReading(this.props.book, event);
+        this.props.updateBookStatus(this.props.book, event);
         this.setState({ selectedValue: event.target.value })
     }
 

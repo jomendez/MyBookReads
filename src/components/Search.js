@@ -1,14 +1,15 @@
+import * as _ from 'lodash'
 import React, { Component } from 'react'
 import { Link } from 'react-router-dom'
+import { getAll, search } from '../BooksAPI'
+import { updateBookStatus } from '../utils/helpers'
 import Book from './Book'
-import { update, search, getAll } from '../BooksAPI'
-import * as _ from 'lodash'
 
 export class Search extends Component {
 
     constructor(props) {
         super(props)
-        this.currentlyReading = this.currentlyReading.bind(this)
+        this.updateBookStatus = updateBookStatus.bind(this)
     }
 
     state = {
@@ -18,8 +19,13 @@ export class Search extends Component {
     }
 
     updateQuery = (query) => {
-        this.setState({ query: query.trim() })
-        this.handleSearchDebounced();
+        if (query !== '') {
+            this.setState({ query: query.trim() })
+            this.handleSearchDebounced();
+        } else {
+            this.clearQuery();
+            this.setState({ books: [] })
+        }
     }
 
     clearQuery = () => {
@@ -28,9 +34,16 @@ export class Search extends Component {
 
     componentDidMount() {
         getAll().then((stagedBooksId) => {
-            const stagedBooks = stagedBooksId.map(b => {
-                return { [b.id]: b.shelf }
-            });
+            const initialValue = {};
+            const stagedBooks = stagedBooksId.reduce((obj, item) => {
+              return {
+                ...obj,
+                [item.id]: item.shelf,
+              };
+            }, initialValue);
+            // const stagedBooks = stagedBooksId.map(b => {
+            //     return { [b.id]: b.shelf }
+            // });
             this.setState({ stagedBooks })
         })
     }
@@ -40,7 +53,11 @@ export class Search extends Component {
         this.handleSearchDebounced = _.debounce(() => {
             if (this.state.query !== '') {
                 search(this.state.query).then(books => {
-                    console.log(books)
+                    books.forEach(book => {
+                        if (this.state.stagedBooks && this.state.stagedBooks[book.id]) {
+                            book.shelf = this.state.stagedBooks[book.id]
+                        }
+                    })
                     if (books && books.length > 0) {
                         this.setState({ books })
                     } else {
@@ -52,25 +69,8 @@ export class Search extends Component {
         }, 1000);
     }
 
-    currentlyReading(book, event) {
-        update(book, event.target.value)
-            .then(updatedBookIds => {
-                const newStateBook = [...this.state.books]
-                Object.keys(updatedBookIds).forEach(shelf => {
-                    updatedBookIds[shelf].forEach(id => {
-                        const foundBooks = newStateBook.find(b => b.id === id)
-                        if (foundBooks) {
-                            foundBooks.shelf = shelf
-                        }
-                    })
-                })
-                this.setState({ state: newStateBook })
-            })
-    }
-
     render() {
-        const { query, stagedBooks } = this.state
-        console.log(stagedBooks)
+        const { query } = this.state
         return (
             <div className="search-books">
                 <div className="search-books-bar">
@@ -96,7 +96,7 @@ export class Search extends Component {
                 <div className="search-books-results">
                     <ol className="books-grid">
                         {this.state.books && this.state.books.map(book => {
-                            return <Book key={book.id} book={book} currentlyReading={this.currentlyReading} />
+                            return <Book key={book.id} book={book} updateBookStatus={this.updateBookStatus} />
                         })
                         }
                         {this.state.books && 'No results'}

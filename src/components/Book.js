@@ -6,11 +6,11 @@ export default class Book extends Component {
 
     static propTypes = {
         book: PropTypes.object,
-        currentlyReading: PropTypes.func.isRequired
+        updateBookStatus: PropTypes.func.isRequired
     }
 
     render() {
-        const { book, currentlyReading } = this.props
+        const { book, updateBookStatus } = this.props
 
         if (book) {
             return (
@@ -21,7 +21,7 @@ export default class Book extends Component {
                                 <a href={book.infoLink}>
                                     <div className="book-cover" style={{ width: 128, height: 193, backgroundImage: 'url("' + book.imageLinks.thumbnail + '")' }}></div>
                                 </a>
-                                <MoveTo book={book} currentlyReading={currentlyReading} />
+                                <MoveTo book={book} updateBookStatus={updateBookStatus} />
                             </div>
                             <div className="book-title">{book.title}</div>
                             <div className="book-authors">{book.authors && book.authors.length === 1 ? book.authors[0] :
