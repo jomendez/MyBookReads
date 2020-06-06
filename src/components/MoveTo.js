@@ -8,7 +8,7 @@ export default class MoveTo extends Component {
         updateBookStatus: PropTypes.func.isRequired
     }
     state = {
-        selectedValue: this.props.book.shelf || 'move'
+        selectedValue: this.props.book.shelf || 'none'
     }
 
     onShelfChange(event) {

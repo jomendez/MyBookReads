@@ -22,7 +22,7 @@ export class Search extends Component {
 
     updateQuery = (query) => {
         if (query !== '') {
-            this.setState({ query: query.trim() })
+            this.setState({ query: query })
             this.handleSearchDebounced();
         } else {
             this.clearQuery();
@@ -52,7 +52,7 @@ export class Search extends Component {
         this.handleSearchDebounced = _.debounce(() => {
             if (this.state.query !== '') {
                 this.setState({ loading: true });
-                search(this.state.query).then(books => {
+                search(this.state.query.trim()).then(books => {
                     books.forEach(book => {
                         if (this.state.stagedBooks && this.state.stagedBooks[book.id]) {
                             book.shelf = this.state.stagedBooks[book.id]
@@ -65,7 +65,7 @@ export class Search extends Component {
                     }
                     this.setState({ loading: false });
                 }).catch(() => {
-                    this.setState({ loading: false });
+                    this.setState({ loading: false, books:[] });
                     alert("An error ocurred")
                 })
             }
