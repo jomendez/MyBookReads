@@ -41,9 +41,6 @@ export class Search extends Component {
                 [item.id]: item.shelf,
               };
             }, initialValue);
-            // const stagedBooks = stagedBooksId.map(b => {
-            //     return { [b.id]: b.shelf }
-            // });
             this.setState({ stagedBooks })
         })
     }
